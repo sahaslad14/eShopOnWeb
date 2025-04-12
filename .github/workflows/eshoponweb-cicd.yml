@@ -6,10 +6,12 @@ on: [push, workflow_dispatch]
 #Environment variables https://docs.github.com/en/actions/learn-github-actions/environment-variables
 env:
   RESOURCE-GROUP: rg-eshoponweb-sl
+  RESOURCE-GROUP-QA: rg-eshoponweb-sl
   LOCATION: eastus
   TEMPLATE-FILE: infra/webapp.bicep
   SUBSCRIPTION-ID: fa998786-a9d1-47b4-94ed-a4844115befe
   WEBAPP-NAME: eshoponweb-webapp-sl
+  WEBAPP-NAME-QA: eshoponweb-webapp-sl-qa
 
 
 jobs:
@@ -138,9 +140,9 @@ jobs:
       uses: azure/arm-deploy@v2
       with:
         subscriptionId: ${{ env.SUBSCRIPTION-ID }}
-        resourceGroupName: ${{ env.RESOURCE-GROUP }}
+        resourceGroupName: ${{ env.RESOURCE-GROUP-QA }}
         template: bicep-template/webapp.bicep
-        parameters: 'webAppName=${{ env.WEBAPP-NAME }} location=${{ env.LOCATION }}'
+        parameters: 'webAppName=${{ env.WEBAPP-NAME-QA }} location=${{ env.LOCATION }}'
         failOnStdErr: false   
     
     # Publish website to Azure App Service (WebApp)
@@ -150,7 +152,7 @@ jobs:
       uses: Azure/webapps-deploy@v3
       with:
         type: ZIP
-        app-name: ${{ env.WEBAPP-NAME  }}
+        app-name: ${{ env.WEBAPP-NAME-QA  }}
         package: .net-app/app.zip
 
     # Publish website to Azure App Service using CLI (WebApp)
@@ -158,4 +160,4 @@ jobs:
       uses: Azure/cli@v2
       with:
         inlineScript: |
-             az webapp deploy --name ${{ env.WEBAPP-NAME }} --resource-group ${{ env.RESOURCE-GROUP }} --src-path .net-app/app.zip --type zip
+             az webapp deploy --name ${{ env.WEBAPP-NAME-QA }} --resource-group ${{ env.RESOURCE-GROUP }} --src-path .net-app/app.zip --type zip
